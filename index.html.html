@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReUso Frederico Riedel</title>
+<style>
+:root{
+  --bg:#1b1b1d; --surface:#242427; --surface2:#2d2d31; --line:#37373d;
+  --fg:#f4f4f5; --muted:#a1a1aa; --accent:#2f9e5b; --accent-fg:#fff; --danger:#f87171;
+  --rec-bg:rgba(47,158,91,.18); --rec-fg:#4ade80;
+  --org-bg:rgba(168,85,247,.18); --org-fg:#d98cff;
+  --esp-bg:rgba(245,158,11,.18); --esp-fg:#fbbf24;
+  --reu-bg:rgba(59,130,246,.18); --reu-fg:#7db3ff;
+  --shadow:0 8px 30px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root{
+    --bg:#f5f7f5; --surface:#ffffff; --surface2:#eef1ee; --line:#dde2dd;
+    --fg:#18181b; --muted:#5b6470; --accent:#1f7a45; --accent-fg:#fff; --danger:#b91c1c;
+    --rec-bg:#dcfce7; --rec-fg:#166534; --org-bg:#f3e8ff; --org-fg:#7e22ce;
+    --esp-bg:#fef3c7; --esp-fg:#b45309; --reu-bg:#dbeafe; --reu-fg:#1d4ed8;
+    --shadow:0 8px 30px rgba(0,0,0,.15);
+    color-scheme:light;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+.app{max-width:520px;margin:0 auto;padding:20px 16px 110px}
+h1,h2,h3,p{margin:0}
+h1{font-size:28px;line-height:1.15;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:18px;font-weight:700}
+.muted{color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.head{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.sub{color:var(--muted);font-size:15px}
+.panel[hidden]{display:none}
+
+/* botões */
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{background:var(--accent);color:var(--accent-fg);border:0;border-radius:999px;padding:11px 18px;font-weight:700;min-height:44px;white-space:nowrap}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.ghost{background:var(--surface2);color:var(--fg);border:1px solid var(--line)}
+.btn.small{padding:8px 14px;min-height:38px;font-size:14px}
+.icon-btn{background:transparent;border:0;border-radius:10px;width:40px;height:40px;display:grid;place-items:center;color:var(--muted)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* busca */
+.search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 14px;margin-bottom:14px;color:var(--muted)}
+.search input{flex:1;min-width:0;background:transparent;border:0;color:var(--fg);padding:13px 0;font-size:16px}
+.search input:focus-visible{outline:none}
+.search:focus-within{outline:2px solid var(--accent)}
+
+/* cartões e listas */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.card+.card{margin-top:0}
+.list{display:flex;flex-direction:column}
+.item{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);padding:14px;color:inherit}
+.item:last-child{border-bottom:0}
+.head-btn{display:block;width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit}
+.item-main{display:flex;gap:12px;align-items:flex-start}
+.ico{width:40px;height:40px;border-radius:10px;background:var(--surface2);display:grid;place-items:center;color:var(--muted);flex:none}
+.item-text{min-width:0;flex:1}
+.item-title{font-weight:700;overflow-wrap:anywhere}
+.item-desc{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;margin-top:8px}
+.chip.rec{background:var(--rec-bg);color:var(--rec-fg)}
+.chip.org{background:var(--org-bg);color:var(--org-fg)}
+.chip.esp{background:var(--esp-bg);color:var(--esp-fg)}
+.chip.reu{background:var(--reu-bg);color:var(--reu-fg)}
+.chip.neutro{background:var(--surface2);color:var(--muted)}
+.detail{margin:12px 0 0 52px;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.detail b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.detail p{overflow-wrap:anywhere}
+.atencao{border-left:3px solid var(--esp-fg);padding-left:10px}
+.section-title{display:flex;align-items:center;gap:8px;margin:24px 0 10px;color:var(--accent)}
+.section-title h2{color:var(--fg)}
+.coleta-obs{color:var(--muted);font-size:14px;margin-top:4px}
+.confirm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.empty{padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty svg{width:32px;height:32px;color:var(--muted)}
+.empty b{font-size:16px}
+.banner{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner[hidden]{display:none}
+
+/* resumo de descartes */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:28px;line-height:1.1}
+.stat span{color:var(--muted);font-size:13px}
+.bars{padding:14px;display:flex;flex-direction:column;gap:12px}
+.bar-top{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.bar{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+
+/* sobre */
+.prose{padding:18px;display:flex;flex-direction:column;gap:14px}
+.prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.prose h3{font-size:16px}
+
+/* navegação */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:0 16px calc(12px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.tabs{pointer-events:auto;max-width:420px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:999px;display:flex;padding:6px;box-shadow:var(--shadow)}
+.tab{flex:1;background:transparent;border:0;border-radius:999px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);min-height:52px}
+.tab[aria-selected="true"]{background:var(--rec-bg);color:var(--accent)}
+@media (prefers-color-scheme:dark){.tab[aria-selected="true"]{color:var(--rec-fg)}}
+
+/* folha (formulário) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));border:1px solid var(--line)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+form{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field>.lbl{font-weight:700;font-size:14px}
+.hint{color:var(--muted);font-size:13px}
+input[type=text],select,textarea{width:100%;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:16px}
+textarea{resize:vertical;min-height:76px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{position:relative;flex:1 1 0;min-width:fit-content}
+.seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.seg span{display:flex;justify-content:center;text-align:center;padding:12px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface2);font-weight:600}
+.seg input:checked+span{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.err{color:var(--danger);font-size:14px;min-height:0}
+.err:empty{display:none}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:30;max-width:90vw;text-align:center;box-shadow:var(--shadow)}
+.toast[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="banner" class="banner" hidden>
+    <span id="bannerMsg"></span>
+    <button class="btn small ghost" id="retry" type="button">Tentar de novo</button>
+  </div>
+
+  <section class="panel" id="p-guia" aria-label="Guia de descarte">
+    <div class="head"><h1>Guia de descarte</h1></div>
+    <label class="search"><span id="ic-search"></span>
+      <input id="q" type="search" placeholder="Buscar material, ex.: vidro, pilha…" autocomplete="off" aria-label="Buscar material">
+    </label>
+    <div class="card list" id="guiaList"></div>
+    <div class="section-title"><span id="ic-truck"></span><h2>Dias de coleta</h2></div>
+    <div class="card list" id="coletaList"></div>
+  </section>
+
+  <section class="panel" id="p-reuso" aria-label="Reuso" hidden>
+    <div class="row" style="margin-bottom:6px">
+      <h1>Reuso</h1>
+      <button class="btn" id="novoItem" type="button">Novo item</button>
+    </div>
+    <p class="sub" style="margin-bottom:14px">Itens em bom estado que os vizinhos podem aproveitar. Combine a retirada direto com quem ofereceu.</p>
+    <div class="card list" id="reusoList"></div>
+  </section>
+
+  <section class="panel" id="p-desc" aria-label="Descartes" hidden>
+    <div class="row" style="margin-bottom:14px">
+      <h1>Descartes</h1>
+      <button class="btn" id="novoDesc" type="button">Registrar descarte</button>
+    </div>
+    <div id="descResumo"></div>
+  </section>
+
+  <section class="panel" id="p-sobre" aria-label="Sobre o projeto" hidden>
+    <div class="head"><h1>Sobre</h1></div>
+    <div class="card prose">
+      <h2>ReUso Frederico Riedel</h2>
+      <p>Projeto de extensão universitária para organizar o descarte correto e o reuso de materiais aqui no condomínio.</p>
+      <h3>Como usar</h3>
+      <ul>
+        <li><b>Guia:</b> veja onde descartar cada material e os dias de coleta.</li>
+        <li><b>Reuso:</b> ofereça ou procure itens em bom estado (móveis, potes de vidro, madeira).</li>
+        <li><b>Descartes:</b> registre o que você descartou, para o projeto acompanhar os números.</li>
+      </ul>
+      <p>Combine a retirada de itens direto com quem ofereceu. Quando alguém pegar o item, toque nele e marque como retirado.</p>
+      <h3>Privacidade</h3>
+      <p>O app não pede nome, apartamento nem telefone: só o bloco. Não coloque dados pessoais nos campos de texto.</p>
+      <h3>Sobre o projeto</h3>
+      <p>Extensão do curso de Análise e Desenvolvimento de Sistemas, Cruzeiro do Sul Virtual. Alinhado aos ODS 12 (consumo e produção responsáveis) e 13 (ação contra a mudança do clima).</p>
+      <p class="muted">Desenvolvido por Leonardo Marcondes Vieira.</p>
+    </div>
+  </section>
+</div>
+
+<nav aria-label="Navegação principal">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="guia" id="t-guia"></button>
+    <button class="tab" role="tab" data-tab="reuso" id="t-reuso"></button>
+    <button class="tab" role="tab" data-tab="desc" id="t-desc"></button>
+    <button class="tab" role="tab" data-tab="sobre" id="t-sobre"></button>
+  </div>
+</nav>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Endereço do servidor (Apps Script /exec). Usado quando a tela é aberta fora do Google.
+  var API_URL = 'https://script.google.com/macros/s/AKfycby7ZAm_MxXQPIMCi2XPBS-w09B5IrHwe87Gjrk7SzL8SCJUXi9fe0p-nZon6wtKEVzO/exec';
+
+  /* ---------- ícones (texto fixo, sem dados de usuário) ---------- */
+  var ICON = {
+    book: '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+    reuse: '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M8 16H3v5"/></svg>',
+    trash: '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    gift: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>',
+    truck: '<svg viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+    search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+    leaf: '<svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5-6"/></svg>',
+    alert: '<svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    x: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    refresh: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>'
+  };
+
+  /* ---------- utilidades ---------- */
+  function h(tag, props) {
+    var el = document.createElement(tag);
+    props = props || {};
+    Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;            // só usado com ICON fixo
+      else if (k === 'text') el.textContent = v;
+      else if (k.indexOf('on') === 0) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c === null || c === undefined || c === false) continue;
+      el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return el;
+  }
+  function $(id) { return document.getElementById(id); }
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  var MESES = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
+  function fmtData(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+    return m ? (m[3] + ' de ' + MESES[Number(m[2]) - 1]) : '';
+  }
+  function tipoInfo(tipo) {
+    var n = norm(tipo);
+    if (n.indexOf('recicl') >= 0) return { cls: 'rec', ico: ICON.reuse };
+    if (n.indexOf('organ') >= 0) return { cls: 'org', ico: ICON.leaf };
+    if (n.indexOf('especial') >= 0) return { cls: 'esp', ico: ICON.alert };
+    if (n.indexOf('reuso') >= 0) return { cls: 'reu', ico: ICON.gift };
+    return { cls: 'neutro', ico: ICON.book };
+  }
+  function temTelefone(s) { return /(\d[\s().\-]*){8,}/.test(s); }
+
+  var TOKEN = (function () {
+    var t = '';
+    try { t = localStorage.getItem('reuso_token') || ''; } catch (e) {}
+    if (!/^[a-z0-9]{8,40}$/.test(t)) {
+      t = '';
+      for (var i = 0; i < 20; i++) t += 'abcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 36));
+      try { localStorage.setItem('reuso_token', t); } catch (e) {}
+    }
+    return t;
+  })();
+
+  function call(fn, arg) {
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(new Error('Demorou demais. Verifique a internet e tente de novo.')); }, 25000);
+      function ok(v) { clearTimeout(timer); resolve(v); }
+      function fail() { clearTimeout(timer); reject(new Error('Não foi possível conectar. Tente de novo.')); }
+      if (window.google && google.script && google.script.run) {      // aberto dentro do Google
+        var run = google.script.run.withSuccessHandler(ok).withFailureHandler(fail);
+        if (arg === undefined) run[fn](); else run[fn](arg);
+        return;
+      }
+      if (!API_URL) { clearTimeout(timer); reject(new Error('Abra o app pelo link ou QR code do projeto.')); return; }
+      var req = fn === 'getData'
+        ? fetch(API_URL + '?api=data', { credentials: 'omit' })
+        : fetch(API_URL, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, arg: arg }) });
+      req.then(function (r) { return r.json(); }).then(ok, fail);
+    });
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+
+  /* ---------- estado ---------- */
+  var state = { tab: 'guia', data: null, loading: false, open: {}, confirm: null };
+  var DEFAULT_CONFIG = {
+    blocos: ['A', 'B'], estados: ['Novo', 'Bom', 'Usado com marcas'], quantidades: ['Pouco', 'Médio', 'Muito'],
+    tipos: ['Papel e papelão', 'Plásticos e latas', 'Vidro', 'Restos de comida', 'Pilhas e baterias',
+      'Óleo de cozinha usado', 'Eletrônicos e cabos', 'Móveis e objetos grandes', 'Outro']
+  };
+  function cfg() { return (state.data && state.data.config) || DEFAULT_CONFIG; }
+
+  function load() {
+    state.loading = true; renderAll();
+    return call('getData').then(function (r) {
+      if (!r || !r.ok) throw new Error((r && r.error) || 'Não foi possível carregar.');
+      state.data = r; $('banner').hidden = true;
+    }).catch(function (e) {
+      $('bannerMsg').textContent = e.message; $('banner').hidden = false;
+    }).then(function () { state.loading = false; renderAll(); });
+  }
+
+  /* ---------- telas ---------- */
+  function emptyBox(icon, titulo, texto) {
+    return h('div', { class: 'empty' }, h('span', { html: icon }), h('b', { text: titulo }), texto ? h('p', { class: 'muted', text: texto }) : null);
+  }
+  function carregando() { return emptyBox(ICON.refresh, 'Carregando…'); }
+
+  function renderGuia() {
+    var box = $('guiaList'); box.textContent = '';
+    if (!state.data) { box.appendChild(state.loading ? carregando() : emptyBox(ICON.alert, 'Não foi possível carregar o guia', 'Toque em “Tentar de novo”.')); $('coletaList').textContent = ''; return; }
+    var q = norm($('q').value.trim());
+    var lista = state.data.guia.filter(function (g) {
+      return !q || norm(g.material + ' ' + g.tipo + ' ' + g.onde).indexOf(q) >= 0;
+    });
+    if (!lista.length) box.appendChild(emptyBox(ICON.search, 'Nada encontrado', 'Tente outra palavra, como “vidro” ou “pilha”.'));
+    lista.forEach(function (g) {
+      var info = tipoInfo(g.tipo), key = 'g:' + g.material, aberto = !!state.open[key];
+      var main = h('div', { class: 'item-main' },
+        h('span', { class: 'ico', html: info.ico }),
+        h('div', { class: 'item-text' },
+          h('div', { class: 'item-title', text: g.material }),
+          h('div', { class: 'item-desc', text: g.onde }),
+          g.tipo ? h('span', { class: 'chip ' + info.cls, text: g.tipo }) : null));
+      var btn = h('button', { class: 'item', type: 'button', 'aria-expanded': aberto ? 'true' : 'false',
+        onclick: function () { state.open[key] = !state.open[key]; renderGuia(); } }, main);
+      if (aberto) {
+        btn.appendChild(h('div', { class: 'detail' },
+          g.como ? h('div', null, h('b', { text: 'Como preparar' }), h('p', { text: g.como })) : null,
+          g.atencao ? h('div', { class: 'atencao' }, h('b', { text: 'Atenção' }), h('p', { text: g.atencao })) : null));
+      }
+      box.appendChild(btn);
+    });
+
+    var cb = $('coletaList'); cb.textContent = '';
+    if (!state.data.coleta.length) cb.appendChild(emptyBox(ICON.truck, 'Sem dias cadastrados'));
+    state.data.coleta.forEach(function (c) {
+      var pend = norm(c.dias).indexOf('confirmar') >= 0;
+      cb.appendChild(h('div', { class: 'item' },
+        h('div', { class: 'item-main' },
+          h('span', { class: 'ico', html: ICON.truck }),
+          h('div', { class: 'item-text' },
+            h('div', { class: 'item-title', text: c.tipo }),
+            h('div', { class: 'item-desc', text: pend ? 'Dias a confirmar' : c.dias }),
+            c.obs ? h('div', { class: 'coleta-obs', text: c.obs }) : null))));
+    });
+  }
+
+  function renderReuso() {
+    var box = $('reusoList'); box.textContent = '';
+    if (!state.data) { box.appendChild(state.loading ? carregando() : emptyBox(ICON.alert, 'Não foi possível carregar a lista')); return; }
+    var itens = state.data.reuso;
+    if (!itens.length) {
+      var vazio = emptyBox(ICON.gift, 'Nenhum item disponível', 'Tem algo em bom estado que não usa mais? Ofereça para um vizinho.');
+      vazio.appendChild(h('button', { class: 'btn small', type: 'button', text: 'Novo item', onclick: abrirReuso }));
+      box.appendChild(vazio); return;
+    }
+    itens.forEach(function (it) {
+      var key = 'r:' + it.row, aberto = !!state.open[key];
+      var meta = ['Bloco ' + it.bloco, it.estado, fmtData(it.data)].filter(Boolean).join(' · ');
+      var wrap = h('div', { class: 'item' });
+      wrap.appendChild(h('button', { class: 'head-btn', type: 'button', 'aria-expanded': aberto ? 'true' : 'false',
+        onclick: function () { state.open[key] = !state.open[key]; state.confirm = null; renderReuso(); } },
+        h('div', { class: 'item-main' },
+          h('span', { class: 'ico', html: ICON.gift }),
+          h('div', { class: 'item-text' },
+            h('div', { class: 'item-title', text: it.item }),
+            h('div', { class: 'item-desc', text: it.descricao }),
+            h('div', { class: 'item-desc', text: meta })))));
+      if (aberto) {
+        var acoes;
+        if (state.confirm === it.row) {
+          acoes = h('div', { class: 'confirm' },
+            h('span', { text: 'Alguém já pegou este item?' }),
+            h('button', { class: 'btn small', type: 'button', text: 'Sim, foi retirado', onclick: function () { retirar(it); } }),
+            h('button', { class: 'btn small ghost', type: 'button', text: 'Cancelar', onclick: function () { state.confirm = null; renderReuso(); } }));
+        } else {
+          acoes = h('div', { class: 'confirm' },
+            h('button', { class: 'btn small ghost', type: 'button', text: 'Já foi retirado', onclick: function () { state.confirm = it.row; renderReuso(); } }));
+        }
+        wrap.appendChild(h('div', { class: 'detail' },
+          h('div', null, h('b', { text: 'Como combinar' }), h('p', { text: it.combinar || 'Não informado' })),
+          acoes));
+      }
+      box.appendChild(wrap);
+    });
+  }
+
+  function renderDesc() {
+    var box = $('descResumo'); box.textContent = '';
+    if (!state.data) { box.appendChild(h('div', { class: 'card' }, state.loading ? carregando() : emptyBox(ICON.alert, 'Não foi possível carregar'))); return; }
+    var d = state.data.descartes;
+    if (!d.total) {
+      box.appendChild(h('div', { class: 'card' }, emptyBox(ICON.trash, 'Nenhum descarte registrado', 'Os descartes registrados aparecem aqui, somados por tipo.')));
+      return;
+    }
+    box.appendChild(h('div', { class: 'stats' },
+      h('div', { class: 'stat' }, h('b', { text: String(d.total) }), h('span', { text: 'registros no total' })),
+      h('div', { class: 'stat' }, h('b', { text: String(d.mes) }), h('span', { text: 'neste mês' }))));
+    var max = d.porTipo[0].n;
+    var bars = h('div', { class: 'card bars' });
+    d.porTipo.forEach(function (t) {
+      var fill = h('i'); fill.style.width = Math.max(4, Math.round(t.n / max * 100)) + '%';
+      bars.appendChild(h('div', null,
+        h('div', { class: 'bar-top' }, h('span', { text: t.tipo }), h('b', { text: String(t.n) })),
+        h('div', { class: 'bar' }, fill)));
+    });
+    box.appendChild(bars);
+  }
+
+  function renderAll() { renderGuia(); renderReuso(); renderDesc(); }
+
+  function setTab(tab) {
+    state.tab = tab;
+    ['guia', 'reuso', 'desc', 'sobre'].forEach(function (t) {
+      $('p-' + t).hidden = t !== tab;
+      $('t-' + t).setAttribute('aria-selected', t === tab ? 'true' : 'false');
+    });
+    window.scrollTo(0, 0);
+    if ((tab === 'reuso' || tab === 'desc') && !state.loading) load();
+  }
+
+  /* ---------- formulários ---------- */
+  var overlay = null, lastFocus = null;
+  function closeSheet() {
+    if (overlay) { overlay.remove(); overlay = null; document.body.style.overflow = ''; document.removeEventListener('keydown', onEsc); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  }
+  function onEsc(e) { if (e.key === 'Escape') closeSheet(); }
+  function openSheet(titulo, corpo) {
+    closeSheet(); lastFocus = document.activeElement;
+    overlay = h('div', { class: 'overlay', onclick: function (e) { if (e.target === overlay) closeSheet(); } },
+      h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo },
+        h('div', { class: 'sheet-head' }, h('h2', { text: titulo }),
+          h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Fechar', html: ICON.x, onclick: closeSheet })),
+        corpo));
+    document.body.appendChild(overlay); document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onEsc);
+    var first = overlay.querySelector('input:not(.hp):not([type=radio]),select,textarea');
+    if (first) first.focus();
+  }
+
+  function seg(name, opts) {
+    var box = h('div', { class: 'seg', role: 'radiogroup' });
+    opts.forEach(function (o) {
+      box.appendChild(h('label', null, h('input', { type: 'radio', name: name, value: o }), h('span', { text: o })));
+    });
+    return box;
+  }
+  function field(label, control, hint) {
+    return h('div', { class: 'field' }, h('div', { class: 'lbl', text: label }), control, hint ? h('div', { class: 'hint', text: hint }) : null);
+  }
+  function labeled(label, input, hint) {
+    return h('div', { class: 'field' }, h('label', { for: input.id, text: label }), input, hint ? h('div', { class: 'hint', text: hint }) : null);
+  }
+  function val(form, name) {
+    var el = form.elements.namedItem(name);
+    return el ? String(el.value || '').trim() : '';
+  }
+
+  function formulario(titulo, rotuloBotao, campos, validar, enviar, aviso) {
+    var form = h('form', { novalidate: 'novalidate', autocomplete: 'off' });
+    campos.forEach(function (c) { form.appendChild(c); });
+    form.appendChild(h('div', { class: 'hp', 'aria-hidden': 'true' }, h('input', { type: 'text', name: 'site', tabindex: '-1', autocomplete: 'off' })));
+    var err = h('div', { class: 'err', role: 'alert' });
+    var btn = h('button', { class: 'btn', type: 'submit', text: rotuloBotao });
+    form.appendChild(err); form.appendChild(btn);
+    var busy = false;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); if (busy) return;
+      err.textContent = '';
+      var msg = validar(form); if (msg) { err.textContent = msg; return; }
+      busy = true; btn.disabled = true; btn.textContent = 'Enviando…';
+      enviar(form).then(function (r) {
+        if (!r || !r.ok) throw new Error((r && r.error) || 'Não foi possível salvar.');
+        closeSheet(); toast(aviso); load();
+      }).catch(function (ex) {
+        err.textContent = ex.message; busy = false; btn.disabled = false; btn.textContent = rotuloBotao;
+      });
+    });
+    openSheet(titulo, form);
+  }
+
+  function abrirReuso() {
+    var c = cfg();
+    var item = h('input', { type: 'text', id: 'f-item', name: 'item', maxlength: '60', placeholder: 'Ex.: Cadeira de madeira' });
+    var desc = h('textarea', { id: 'f-desc', name: 'descricao', maxlength: '200', placeholder: 'Ex.: Cadeira firme, só com pequenos riscos.' });
+    var comb = h('input', { type: 'text', id: 'f-comb', name: 'combinar', maxlength: '120', placeholder: 'Ex.: Falar com o zelador ou deixar recado no mural' });
+    formulario('Novo item para reuso', 'Publicar item', [
+      labeled('Item', item),
+      labeled('Descrição', desc, 'Conte o estado e o tamanho, em poucas palavras.'),
+      field('Estado', seg('estado', c.estados)),
+      field('Seu bloco', seg('bloco', c.blocos)),
+      labeled('Como combinar a retirada', comb, 'Não coloque telefone nem dados pessoais.')
+    ], function (f) {
+      var i = val(f, 'item'), d = val(f, 'descricao'), cb = val(f, 'combinar');
+      if (i.length < 2) return 'Diga qual é o item.';
+      if (d.length < 2) return 'Escreva uma descrição curta.';
+      if (!val(f, 'estado')) return 'Escolha o estado do item.';
+      if (!val(f, 'bloco')) return 'Escolha o seu bloco.';
+      if (cb.length < 3) return 'Diga como combinar a retirada.';
+      if (temTelefone(i + ' ' + d + ' ' + cb)) return 'Não coloque telefone nem outros números de contato. Escreva, por exemplo, “falar com o zelador”.';
+      return '';
+    }, function (f) {
+      return call('addReuso', { item: val(f, 'item'), descricao: val(f, 'descricao'), estado: val(f, 'estado'),
+        bloco: val(f, 'bloco'), combinar: val(f, 'combinar'), site: val(f, 'site'), token: TOKEN });
+    }, 'Item publicado. Obrigado!');
+  }
+
+  function abrirDesc() {
+    var c = cfg();
+    var tipo = h('select', { id: 'f-tipo', name: 'tipo' }, h('option', { value: '', text: 'Escolha o material' }));
+    c.tipos.forEach(function (t) { tipo.appendChild(h('option', { value: t, text: t })); });
+    formulario('Registrar descarte', 'Registrar', [
+      labeled('Material descartado', tipo),
+      field('Quantidade', seg('quantidade', c.quantidades), 'Pouco: cerca de uma sacola ou um item. Muito: várias sacolas ou itens.'),
+      field('Seu bloco', seg('bloco', c.blocos))
+    ], function (f) {
+      if (!val(f, 'tipo')) return 'Escolha o tipo de material.';
+      if (!val(f, 'quantidade')) return 'Escolha a quantidade.';
+      if (!val(f, 'bloco')) return 'Escolha o seu bloco.';
+      return '';
+    }, function (f) {
+      return call('addDescarte', { tipo: val(f, 'tipo'), quantidade: val(f, 'quantidade'), bloco: val(f, 'bloco'), site: val(f, 'site'), token: TOKEN });
+    }, 'Descarte registrado. Obrigado!');
+  }
+
+  function retirar(it) {
+    call('marcarRetirado', { row: it.row, item: it.item, token: TOKEN }).then(function (r) {
+      if (!r || !r.ok) throw new Error((r && r.error) || 'Não foi possível atualizar.');
+      state.confirm = null; toast('Item marcado como retirado.'); load();
+    }).catch(function (e) { toast(e.message); state.confirm = null; load(); });
+  }
+
+  /* ---------- início ---------- */
+  $('ic-search').innerHTML = ICON.search;
+  $('ic-truck').innerHTML = ICON.truck;
+  [['guia', ICON.book, 'Guia'], ['reuso', ICON.reuse, 'Reuso'], ['desc', ICON.trash, 'Descartes'], ['sobre', ICON.info, 'Sobre']].forEach(function (t) {
+    var b = $('t-' + t[0]);
+    b.innerHTML = t[1]; b.appendChild(h('span', { text: t[2] }));
+    b.addEventListener('click', function () { setTab(t[0]); });
+  });
+  $('q').addEventListener('input', renderGuia);
+  $('novoItem').addEventListener('click', abrirReuso);
+  $('novoDesc').addEventListener('click', abrirDesc);
+  $('retry').addEventListener('click', load);
+  setTab('guia');
+  load();
+})();
+</script>
+</body>
+</html>
